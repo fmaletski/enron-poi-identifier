@@ -13,13 +13,13 @@
 
 
 2. Import features to a workspace, overall exploration.
+* Done.
 
 3. Create prototype of algorithms.
+*Done.*
 
 4. Use CV to fine tune each algorithm (3 passes).
 
 5. Evaluate performance, choose final algorithm.
 
-6. Fine tune it for production (5 passes)
-
-7. Evaluate performance, write report.
+6. Evaluate performance, write report.
