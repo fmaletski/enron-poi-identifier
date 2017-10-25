@@ -17,6 +17,7 @@ Identify POI in the ENRON dataset using Machine Learning
 * **workflow.ipynb** - Main project file
 * **./tools/dos2unix.py** - Tool that converts Python 2 pickle files to be used by Python 3 (see references)
 * **./tools/feature_format.py** - Feature formatting tool used by tester.py, provided by Udacity, modified to be run using Python 3
+* **./img** - Images
 
 ## References
 

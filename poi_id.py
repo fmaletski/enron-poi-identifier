@@ -10,12 +10,12 @@ from tester import dump_classifier_and_data
 ### features_list is a list of strings, each of which is a feature name.
 ### The first feature must be "poi".
 features_list = ['poi',
-                 'to_poi_ratio',
-                 'salary',
+                 'exercised_stock_options',
                  'bonus',
-                 'deferred_income',
-                 'total_stock_value',
-                 'exercised_stock_options']
+                 'to_poi_ratio',
+                 'expenses',
+                 'from_poi_ratio',
+                 'deferral_payments']
 
 ### Load the dictionary containing the dataset
 
@@ -51,59 +51,26 @@ my_dataset = df[features_list].transpose().to_dict()
 
 ### Classifier
 from sklearn.svm import SVC
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import AdaBoostClassifier
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import VotingClassifier
 
-clf3 = SVC(C=11.6, cache_size=200, class_weight='balanced', coef0=0.0,
-  decision_function_shape='ovr', degree=3, gamma=1.17, kernel='sigmoid',
+clf1 = DecisionTreeClassifier(class_weight='balanced', criterion='entropy',
+            max_depth=None, max_features='auto', max_leaf_nodes=None,
+            min_impurity_decrease=0.0, min_impurity_split=None,
+            min_samples_leaf=19, min_samples_split=2,
+            min_weight_fraction_leaf=0.0, presort=False, random_state=42,
+            splitter='best')
+
+clf2 = SVC(C=5.4, cache_size=200, class_weight='balanced', coef0=0.0,
+  decision_function_shape='ovr', degree=3, gamma=3.9, kernel='sigmoid',
   max_iter=-1, probability=False, random_state=42, shrinking=True,
   tol=0.001, verbose=False)
 
-clf2 = AdaBoostClassifier(algorithm='SAMME',
-          base_estimator=DecisionTreeClassifier(class_weight='balanced', criterion='gini',
-            max_depth=None, max_features=None, max_leaf_nodes=None,
-            min_impurity_decrease=0.0, min_impurity_split=None,
-            min_samples_leaf=12, min_samples_split=2,
-            min_weight_fraction_leaf=0.0, presort=False, random_state=None,
-            splitter='best'),
-          learning_rate=1.2, n_estimators=3, random_state=42)
+clf3 = KNeighborsClassifier(algorithm='ball_tree', leaf_size=1, metric='minkowski',
+           metric_params=None, n_jobs=1, n_neighbors=3, p=2,
+           weights='distance')
 
-clf1 = RandomForestClassifier(bootstrap=True, class_weight='balanced',
-            criterion='gini', max_depth=None, max_features='auto',
-            max_leaf_nodes=None, min_impurity_decrease=0.0,
-            min_impurity_split=None, min_samples_leaf=2,
-            min_samples_split=2, min_weight_fraction_leaf=0.0,
-            n_estimators=9, n_jobs=1, oob_score=False, random_state=42,
-            verbose=0, warm_start=False)
+eclf = VotingClassifier(estimators=[('dt', clf1), ('svc', clf2), ('kn', clf3)], voting='hard')
 
-eclf = VotingClassifier(estimators=[('svc', clf3), ('ada', clf2), ('rf', clf1)], voting='hard')
-
-### Evaluation metrics
-from sklearn.metrics import matthews_corrcoef
-from sklearn.metrics import make_scorer
-mcc = make_scorer(matthews_corrcoef)
-scorers = {'mcc': mcc, 'accuracy': 'accuracy', 'f1': 'f1', 
-           'recall': 'recall', 'precision': 'precision'}
-
-### CrossValidation
-from sklearn.model_selection import GridSearchCV
-parameters = {} # Using GridSearchCV just for CV
-clf = GridSearchCV(eclf, parameters, scoring=scorers,
-                   n_jobs=1, cv=3, refit='mcc', verbose=0)
-clf.fit(features, labels)
-print(clf.best_estimator_)
-mcc = clf.cv_results_['mean_test_mcc'][clf.best_index_]
-print('MCC:       {:0.4f}'.format(mcc))
-f1 =  clf.cv_results_['mean_test_f1'][clf.best_index_]
-print('F1:        {:0.4f}'.format(f1))
-pre = clf.cv_results_['mean_test_precision'][clf.best_index_]
-print('Precision: {:0.4f}'.format(pre))
-rec = clf.cv_results_['mean_test_recall'][clf.best_index_]
-print('Recall:    {:0.4f}'.format(rec))
-acc = clf.cv_results_['mean_test_accuracy'][clf.best_index_]
-print('Accuracy:  {:0.4f}'.format(acc))
-
-
-dump_classifier_and_data(eclf, my_dataset, features_list)
+dump_classifier_and_data(clf1, my_dataset, features_list)
