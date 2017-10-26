@@ -25,15 +25,19 @@ with open("final_project_dataset_py3.pkl", "rb") as data_file:
 ### Remove outliers
 
 data_dict.pop('TOTAL')
+data_dict.pop('THE TRAVEL AGENCY IN THE PARK')
+data_dict.pop('LOCKHART EUGENE E')
 
 ### Create dataframe
 
 df = pd.DataFrame(data_dict)
 df = df.transpose()
 df.replace('NaN', 0, inplace=True)
-### Create new features
 
+### Create new features
+# Ratio of messages from poi vs total received messages
 df['from_poi_ratio'] = df['from_poi_to_this_person']/df['to_messages']
+# Ratio of messages to poi vs total sent messages
 df['to_poi_ratio'] = df['from_this_person_to_poi']/df['from_messages']
 df = df.fillna(0)
 
